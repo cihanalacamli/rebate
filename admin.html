@@ -21,12 +21,40 @@
       --warning:#ffb020;
     }
     *{box-sizing:border-box}
+    html,body{margin:0;min-height:100vh}
     body{
-      margin:0;
       font-family:Arial,Helvetica,sans-serif;
       background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);
       color:var(--text);
-      min-height:100vh;
+    }
+    body.preauth .topbar,
+    body.preauth .page { visibility:hidden; }
+    .auth-loading{
+      position:fixed; inset:0; z-index:9999;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);
+      padding:24px;
+    }
+    body.auth-ready .auth-loading{ display:none; }
+    .auth-loading-card{
+      width:100%; max-width:440px;
+      background:rgba(17,26,46,.96);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 16px 40px rgba(0,0,0,.35);
+      text-align:center;
+    }
+    .auth-loading-title{font-size:24px;font-weight:800;margin:0 0 8px}
+    .auth-loading-sub{font-size:14px;color:var(--muted);margin:0}
+    .spinner{
+      display:inline-block;
+      width:22px;height:22px;
+      border:3px solid rgba(255,255,255,.22);
+      border-top-color:#fff;
+      border-radius:50%;
+      animation:spin .75s linear infinite;
+      margin-bottom:14px;
     }
     .topbar{
       position:sticky;
@@ -95,6 +123,7 @@
       font-size:14px;
       line-height:1.45;
       border:1px solid transparent;
+      white-space:pre-line;
     }
     .msg.show{display:block}
     .msg.error{
@@ -264,7 +293,15 @@
     }
   </style>
 </head>
-<body>
+<body class="preauth">
+  <div class="auth-loading" id="authLoading">
+    <div class="auth-loading-card">
+      <div class="spinner"></div>
+      <h2 class="auth-loading-title">Checking admin access...</h2>
+      <p class="auth-loading-sub">Please wait while your session is verified.</p>
+    </div>
+  </div>
+
   <div class="topbar">
     <div class="topbar-inner">
       <div>
@@ -323,7 +360,9 @@
     import {
       getAuth,
       onAuthStateChanged,
-      signOut
+      signOut,
+      setPersistence,
+      sessionPersistence
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
@@ -351,6 +390,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    await setPersistence(auth, sessionPersistence);
+
+    const bodyEl = document.body;
     const messageEl = document.getElementById("message");
     const pendingList = document.getElementById("pendingList");
     const processedList = document.getElementById("processedList");
@@ -362,6 +404,11 @@
     const openToolBtn = document.getElementById("openToolBtn");
 
     let currentAdminEmail = null;
+
+    function revealPage() {
+      bodyEl.classList.remove("preauth");
+      bodyEl.classList.add("auth-ready");
+    }
 
     function showMessage(text, type = "error") {
       messageEl.className = `msg show ${type}`;
@@ -386,18 +433,20 @@
     function formatDate(value) {
       if (!value) return "-";
       try {
-        if (typeof value.toDate === "function") {
-          return value.toDate().toLocaleString();
-        }
+        if (typeof value.toDate === "function") return value.toDate().toLocaleString();
         return new Date(value).toLocaleString();
       } catch {
         return "-";
       }
     }
 
+    async function fastRedirectToLogin() {
+      window.location.replace("login.html");
+    }
+
     async function ensureAdmin(user) {
       if (!user) {
-        window.location.href = "login.html";
+        await fastRedirectToLogin();
         return false;
       }
 
@@ -406,7 +455,7 @@
 
       if (!userSnap.exists()) {
         await signOut(auth);
-        window.location.href = "login.html";
+        await fastRedirectToLogin();
         return false;
       }
 
@@ -414,10 +463,7 @@
       const isAdmin = user.email === ADMIN_EMAIL || data.role === "admin";
 
       if (!isAdmin) {
-        showMessage("You are not authorized to view the admin panel.", "error");
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1200);
+        await fastRedirectToLogin();
         return false;
       }
 
@@ -522,14 +568,10 @@
 
     async function updateStatus(userId, newStatus) {
       clearMessage();
-
       try {
         const userRef = doc(db, "users", userId);
         const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-          throw new Error("User not found.");
-        }
+        if (!userSnap.exists()) throw new Error("User not found.");
 
         const userData = userSnap.data();
 
@@ -539,9 +581,7 @@
           approvedBy: currentAdminEmail
         });
 
-        if (newStatus === "approved") {
-          await sendApprovalEmailPlaceholder(userData);
-        }
+        if (newStatus === "approved") await sendApprovalEmailPlaceholder(userData);
 
         showMessage(`User ${newStatus} successfully.`, "success");
         await loadUsers();
@@ -553,29 +593,22 @@
 
     async function deleteUserDoc(userId, userEmail) {
       clearMessage();
-
       const confirmed = window.confirm(
         `Delete this user record?\n\n${userEmail}\n\nThis removes the Firestore access record.`
       );
-
       if (!confirmed) return;
 
       try {
         const userRef = doc(db, "users", userId);
         const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-          throw new Error("User record not found.");
-        }
+        if (!userSnap.exists()) throw new Error("User record not found.");
 
         const data = userSnap.data();
-
         if ((data.role || "user") === "admin" || (data.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
           throw new Error("Admin record cannot be deleted from this panel.");
         }
 
         await deleteDoc(userRef);
-
         showMessage(`User record deleted successfully: ${userEmail}`, "success");
         await loadUsers();
       } catch (err) {
@@ -587,50 +620,35 @@
     function handleActionClick(e) {
       const btn = e.target.closest("button[data-action]");
       if (!btn) return;
-
       const action = btn.dataset.action;
       const userId = btn.dataset.id;
       const userEmail = btn.dataset.email || "";
-
       if (!userId) return;
 
-      if (action === "approve") {
-        updateStatus(userId, "approved");
-        return;
-      }
-
-      if (action === "reject") {
-        updateStatus(userId, "rejected");
-        return;
-      }
-
-      if (action === "delete") {
-        deleteUserDoc(userId, userEmail);
-      }
+      if (action === "approve") return updateStatus(userId, "approved");
+      if (action === "reject") return updateStatus(userId, "rejected");
+      if (action === "delete") return deleteUserDoc(userId, userEmail);
     }
 
     pendingList.addEventListener("click", handleActionClick);
     processedList.addEventListener("click", handleActionClick);
 
     refreshBtn.addEventListener("click", loadUsers);
-
-    openToolBtn.addEventListener("click", () => {
-      window.location.href = "rebate.html";
-    });
-
+    openToolBtn.addEventListener("click", () => { window.location.href = "rebate.html"; });
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
-      window.location.href = "login.html";
+      fastRedirectToLogin();
     });
 
     onAuthStateChanged(auth, async (user) => {
       try {
         const ok = await ensureAdmin(user);
         if (!ok) return;
+        revealPage();
         await loadUsers();
       } catch (err) {
         console.error(err);
-        showMessage("Admin session validation failed.", "error");
+        await fastRedirectToLogin();
       }
     });
   </script>
