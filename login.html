@@ -191,7 +191,7 @@
       signOut,
       sendPasswordResetEmail,
       setPersistence,
-      sessionPersistence
+      browserSessionPersistence
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
@@ -214,7 +214,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    await setPersistence(auth, sessionPersistence);
+    await setPersistence(auth, browserSessionPersistence);
 
     const form = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
