@@ -440,27 +440,32 @@
       }
     }
 
-    function fastRedirectToLogin() {
+    async function fastRedirectToLogin() {
       window.location.replace("login.html");
     }
 
-    async function ensureAdmin(user) {
-      if (!user) {
-        fastRedirectToLogin();
-        return false;
-      }
+ 
+async function ensureAdmin(user) {
+  if (!user) {
+    fastRedirectToLogin();
+    return false;
+  }
 
-      const email = (user.email || "").toLowerCase();
+  const email = (user.email || "").toLowerCase();
 
-      if (email !== ADMIN_EMAIL.toLowerCase()) {
-        await signOut(auth);
-        fastRedirectToLogin();
-        return false;
-      }
+  if (email !== ADMIN_EMAIL.toLowerCase()) {
+    await signOut(auth);
+    fastRedirectToLogin();
+    return false;
+  }
 
-      currentAdminEmail = email;
-      return true;
-    }
+  currentAdminEmail = email;
+  return true;
+}
+
+
+
+
 
     function renderPending(users) {
       if (!users.length) {
@@ -636,10 +641,10 @@
         const ok = await ensureAdmin(user);
         if (!ok) return;
         revealPage();
-        loadUsers();
+        await loadUsers();
       } catch (err) {
         console.error(err);
-        fastRedirectToLogin();
+        await fastRedirectToLogin();
       }
     });
   </script>
