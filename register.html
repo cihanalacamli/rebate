@@ -121,6 +121,7 @@
       font-size:14px;
       line-height:1.45;
       border:1px solid transparent;
+      white-space:pre-line;
     }
     .msg.show{display:block}
     .msg.error{
@@ -211,7 +212,8 @@
       </div>
 
       <div class="note">
-        Admin email registration is automatically marked as approved and assigned as admin.
+        Usernames are no longer checked globally for uniqueness in this version.
+        E-mail remains the unique login identity.
       </div>
     </div>
   </div>
@@ -227,10 +229,6 @@
       getFirestore,
       doc,
       setDoc,
-      collection,
-      query,
-      where,
-      getDocs,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -280,12 +278,6 @@
       return value.trim().replace(/\s+/g, "");
     }
 
-    async function isUsernameTaken(username) {
-      const q = query(collection(db, "users"), where("username", "==", username));
-      const snap = await getDocs(q);
-      return !snap.empty;
-    }
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       clearMessage();
@@ -310,11 +302,6 @@
 
         if (password.length < 6) {
           throw new Error("Password must be at least 6 characters.");
-        }
-
-        const usernameTaken = await isUsernameTaken(username);
-        if (usernameTaken) {
-          throw new Error("This username is already in use.");
         }
 
         const credential = await createUserWithEmailAndPassword(auth, email, password);
@@ -357,6 +344,7 @@
         if (err.code === "auth/email-already-in-use") text = "This e-mail address is already in use.";
         if (err.code === "auth/invalid-email") text = "Invalid e-mail address.";
         if (err.code === "auth/weak-password") text = "Weak password. Use at least 6 characters.";
+        if (err.code === "permission-denied") text = "Permission denied by Firestore rules. Please verify the rules and try again.";
 
         showMessage(text, "error");
       } finally {
