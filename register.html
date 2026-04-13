@@ -5,348 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rebate Access | Register</title>
   <style>
-    :root{
-      --bg:#0b1220;
-      --panel:#111a2e;
-      --panel-2:#16213a;
-      --text:#e8eefc;
-      --muted:#9db0d3;
-      --line:#24314f;
-      --accent:#4f8cff;
-      --accent-2:#2f6fe8;
-      --danger:#ff6b6b;
-      --success:#2fbf71;
-      --warning:#ffb020;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);
-      color:var(--text);
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:24px;
-    }
-    .wrap{width:100%;max-width:620px}
-    .card{
-      background:rgba(17,26,46,.96);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:28px;
-      box-shadow:0 16px 40px rgba(0,0,0,.35);
-    }
-    .brand{
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin-bottom:10px;
-    }
-    h1{
-      margin:0 0 8px;
-      font-size:28px;
-      line-height:1.1;
-    }
-    .sub{
-      color:var(--muted);
-      font-size:14px;
-      margin:0 0 22px;
-      line-height:1.5;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-    .full{grid-column:1 / -1}
-    label{
-      display:block;
-      font-size:13px;
-      margin:0 0 8px;
-      color:#c9d6f2;
-    }
-    input{
-      width:100%;
-      padding:13px 14px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:var(--panel-2);
-      color:var(--text);
-      outline:none;
-      margin:0;
-    }
-    input:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(79,140,255,.15);
-    }
-    .field{display:flex;flex-direction:column;gap:0}
-    .btn{
-      width:100%;
-      padding:13px 16px;
-      border:none;
-      border-radius:12px;
-      background:var(--accent);
-      color:white;
-      font-weight:700;
-      cursor:pointer;
-      transition:.18s ease;
-      margin-top:18px;
-    }
-    .btn:hover{background:var(--accent-2)}
-    .btn:disabled{
-      opacity:.65;
-      cursor:not-allowed;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top:16px;
-      flex-wrap:wrap;
-    }
-    .link{
-      color:#9fc0ff;
-      text-decoration:none;
-      font-size:14px;
-    }
-    .link:hover{text-decoration:underline}
-    .msg{
-      display:none;
-      margin:0 0 16px;
-      padding:12px 14px;
-      border-radius:12px;
-      font-size:14px;
-      line-height:1.45;
-      border:1px solid transparent;
-    }
-    .msg.show{display:block}
-    .msg.error{
-      background:rgba(255,107,107,.08);
-      border-color:rgba(255,107,107,.25);
-      color:#ffd4d4;
-    }
-    .msg.success{
-      background:rgba(47,191,113,.08);
-      border-color:rgba(47,191,113,.25);
-      color:#cff5de;
-    }
-    .note{
-      margin-top:12px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.45;
-    }
-    .loading{
-      display:inline-block;
-      width:16px;height:16px;
-      border:2px solid rgba(255,255,255,.25);
-      border-top-color:white;
-      border-radius:50%;
-      animation:spin .7s linear infinite;
-      vertical-align:-3px;
-      margin-right:8px;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @media (max-width: 640px){
-      .grid{grid-template-columns:1fr}
-      .full{grid-column:auto}
-    }
+    :root{--bg:#0b1220;--panel:#111a2e;--panel-2:#16213a;--text:#e8eefc;--muted:#9db0d3;--line:#24314f;--accent:#4f8cff;--accent-2:#2f6fe8;--danger:#ff6b6b;--success:#2fbf71;--warning:#ffb020;}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);color:var(--text);min-height:100vh;display:grid;place-items:center;padding:24px;}
+    .wrap{width:100%;max-width:620px}.card{background:rgba(17,26,46,.96);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+    .brand{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px} h1{margin:0 0 8px;font-size:28px;line-height:1.1}.sub{color:var(--muted);font-size:14px;margin:0 0 22px;line-height:1.5}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1} label{display:block;font-size:13px;margin:0 0 8px;color:#c9d6f2}
+    input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);outline:none;margin:0}
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,140,255,.15)} .field{display:flex;flex-direction:column;gap:0}
+    .btn{width:100%;padding:13px 16px;border:none;border-radius:12px;background:var(--accent);color:white;font-weight:700;cursor:pointer;transition:.18s ease;margin-top:18px}
+    .btn:hover{background:var(--accent-2)} .btn:disabled{opacity:.65;cursor:not-allowed}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
+    .link{color:#9fc0ff;text-decoration:none;font-size:14px}.link:hover{text-decoration:underline}
+    .msg{display:none;margin:0 0 16px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.45;border:1px solid transparent;white-space:pre-line}
+    .msg.show{display:block}.msg.error{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.25);color:#ffd4d4}.msg.success{background:rgba(47,191,113,.08);border-color:rgba(47,191,113,.25);color:#cff5de}
+    .note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.45}.loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}} @media (max-width:640px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="brand">Cisco Rebate Access</div>
-      <h1>New Registration</h1>
-      <p class="sub">Create your account request. Access remains closed until admin approval.</p>
-
-      <div id="message" class="msg"></div>
-
-      <form id="registerForm">
-        <div class="grid">
-          <div class="field">
-            <label for="firstName">First name</label>
-            <input id="firstName" type="text" maxlength="60" required />
-          </div>
-
-          <div class="field">
-            <label for="lastName">Last name</label>
-            <input id="lastName" type="text" maxlength="60" required />
-          </div>
-
-          <div class="field full">
-            <label for="company">Company</label>
-            <input id="company" type="text" maxlength="120" required />
-          </div>
-
-          <div class="field">
-            <label for="email">E-mail</label>
-            <input id="email" type="email" autocomplete="email" required />
-          </div>
-
-          <div class="field">
-            <label for="username">Username</label>
-            <input id="username" type="text" maxlength="40" required />
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <input id="password" type="password" minlength="6" autocomplete="new-password" required />
-          </div>
-
-          <div class="field">
-            <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" type="password" minlength="6" autocomplete="new-password" required />
-          </div>
-        </div>
-
-        <button id="registerBtn" class="btn" type="submit">Submit registration</button>
-      </form>
-
-      <div class="row">
-        <a class="link" href="login.html">Back to login</a>
-      </div>
-
-      <div class="note">
-        Usernames are not globally checked for uniqueness in this version. E-mail remains the unique login identity. Admin email registration is automatically marked as approved and assigned as admin.
-      </div>
-    </div>
-  </div>
-
+  <div class="wrap"><div class="card"><div class="brand">Cisco Rebate Access</div><h1>New Registration</h1><p class="sub">Create your account request. Access remains closed until admin approval.</p><div id="message" class="msg"></div>
+  <form id="registerForm"><div class="grid">
+    <div class="field"><label for="firstName">First name</label><input id="firstName" type="text" maxlength="60" required /></div>
+    <div class="field"><label for="lastName">Last name</label><input id="lastName" type="text" maxlength="60" required /></div>
+    <div class="field full"><label for="company">Company</label><input id="company" type="text" maxlength="120" required /></div>
+    <div class="field"><label for="email">E-mail</label><input id="email" type="email" autocomplete="email" required /></div>
+    <div class="field"><label for="username">Username</label><input id="username" type="text" maxlength="40" autocomplete="username" required /></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="new-password" required /></div>
+    <div class="field"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" minlength="6" autocomplete="new-password" required /></div>
+  </div><button id="registerBtn" class="btn" type="submit">Submit registration</button></form>
+  <div class="row"><a class="link" href="login.html">Back to login</a></div><div class="note">Both e-mail and username can be used for login. Username must be unique. Admin e-mail registration is automatically marked as approved and assigned as admin.</div></div></div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const ADMIN_EMAIL = "cihanalacamli@gmail.com";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLaIlSEnNN4Oxa7vHaAJpF3nl4DkH3lxc",
-      authDomain: "rebate-access.firebaseapp.com",
-      projectId: "rebate-access",
-      storageBucket: "rebate-access.firebasestorage.app",
-      messagingSenderId: "1049221583087",
-      appId: "1:1049221583087:web:1f1fdaa2fe21801ec74b1a"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const form = document.getElementById("registerForm");
-    const registerBtn = document.getElementById("registerBtn");
-    const messageEl = document.getElementById("message");
-
-    const firstNameEl = document.getElementById("firstName");
-    const lastNameEl = document.getElementById("lastName");
-    const companyEl = document.getElementById("company");
-    const emailEl = document.getElementById("email");
-    const usernameEl = document.getElementById("username");
-    const passwordEl = document.getElementById("password");
-    const confirmPasswordEl = document.getElementById("confirmPassword");
-
-    function showMessage(text, type = "error") {
-      messageEl.className = `msg show ${type}`;
-      messageEl.textContent = text;
-    }
-
-    function clearMessage() {
-      messageEl.className = "msg";
-      messageEl.textContent = "";
-    }
-
-    function setLoading(isLoading) {
-      registerBtn.disabled = isLoading;
-      registerBtn.innerHTML = isLoading ? `<span class="loading"></span>Please wait` : "Submit registration";
-    }
-
-    function sanitizeUsername(value) {
-      return value.trim().replace(/\s+/g, "");
-    }
-
+    const firebaseConfig = { apiKey:"AIzaSyDLaIlSEnNN4Oxa7vHaAJpF3nl4DkH3lxc", authDomain:"rebate-access.firebaseapp.com", projectId:"rebate-access", storageBucket:"rebate-access.firebasestorage.app", messagingSenderId:"1049221583087", appId:"1:1049221583087:web:1f1fdaa2fe21801ec74b1a" };
+    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+    const form = document.getElementById("registerForm"), registerBtn = document.getElementById("registerBtn"), messageEl = document.getElementById("message");
+    const firstNameEl = document.getElementById("firstName"), lastNameEl = document.getElementById("lastName"), companyEl = document.getElementById("company"), emailEl = document.getElementById("email"), usernameEl = document.getElementById("username"), passwordEl = document.getElementById("password"), confirmPasswordEl = document.getElementById("confirmPassword");
+    function showMessage(text, type="error"){ messageEl.className = `msg show ${type}`; messageEl.textContent = text; }
+    function clearMessage(){ messageEl.className = "msg"; messageEl.textContent = ""; }
+    function setLoading(isLoading){ registerBtn.disabled = isLoading; registerBtn.innerHTML = isLoading ? '<span class="loading"></span>Please wait' : 'Submit registration'; }
+    function sanitizeUsername(value){ return value.trim().replace(/\s+/g, "").toLowerCase(); }
+    function isValidUsername(value){ return /^[a-z0-9._-]{3,40}$/.test(value); }
     form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      clearMessage();
-      setLoading(true);
-
+      e.preventDefault(); clearMessage(); setLoading(true);
       try {
-        const firstName = firstNameEl.value.trim();
-        const lastName = lastNameEl.value.trim();
-        const company = companyEl.value.trim();
-        const email = emailEl.value.trim().toLowerCase();
-        const username = sanitizeUsername(usernameEl.value);
-        const password = passwordEl.value;
-        const confirmPassword = confirmPasswordEl.value;
-
-        if (!firstName || !lastName || !company || !email || !username || !password || !confirmPassword) {
-          throw new Error("Please fill in all fields.");
-        }
-
-        if (password !== confirmPassword) {
-          throw new Error("Passwords do not match.");
-        }
-
-        if (password.length < 6) {
-          throw new Error("Password must be at least 6 characters.");
-        }
-
-        const credential = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = credential.user.uid;
-
-        const isAdmin = email === ADMIN_EMAIL;
-
-        await setDoc(doc(db, "users", uid), {
-          firstName,
-          lastName,
-          company,
-          email,
-          username,
-          role: isAdmin ? "admin" : "user",
-          status: isAdmin ? "approved" : "pending",
-          createdAt: serverTimestamp(),
-          approvedAt: isAdmin ? serverTimestamp() : null,
-          approvedBy: isAdmin ? email : null
-        });
-
-        await signOut(auth);
-
-        if (isAdmin) {
-          showMessage("Admin account created successfully. You can now log in.", "success");
-          setTimeout(() => {
-            window.location.href = "login.html";
-          }, 1200);
-          return;
-        }
-
-        showMessage("Registration submitted successfully. Please wait for admin approval.", "success");
-        setTimeout(() => {
-          window.location.href = "login.html?registered=1";
-        }, 1400);
-
+        const firstName = firstNameEl.value.trim(), lastName = lastNameEl.value.trim(), company = companyEl.value.trim(), email = emailEl.value.trim().toLowerCase(), username = sanitizeUsername(usernameEl.value), password = passwordEl.value, confirmPassword = confirmPasswordEl.value;
+        if (!firstName || !lastName || !company || !email || !username || !password || !confirmPassword) throw new Error("Please fill in all fields.");
+        if (!isValidUsername(username)) throw new Error("Username must be 3-40 characters and may include letters, numbers, dot, dash, and underscore.");
+        if (password !== confirmPassword) throw new Error("Passwords do not match.");
+        if (password.length < 6) throw new Error("Password must be at least 6 characters.");
+        const usernameRef = doc(db, "usernames", username); const usernameSnap = await getDoc(usernameRef); if (usernameSnap.exists()) throw new Error("This username is already in use.");
+        const credential = await createUserWithEmailAndPassword(auth, email, password); const uid = credential.user.uid; const isAdmin = email === ADMIN_EMAIL;
+        await setDoc(doc(db, "users", uid), { firstName, lastName, company, email, username, role: isAdmin ? "admin" : "user", status: isAdmin ? "approved" : "pending", createdAt: serverTimestamp(), approvedAt: isAdmin ? serverTimestamp() : null, approvedBy: isAdmin ? email : null });
+        await setDoc(usernameRef, { uid, email, username, createdAt: serverTimestamp() }); await signOut(auth);
+        showMessage(isAdmin ? "Admin account created successfully. You can now log in." : "Registration submitted successfully. Please wait for admin approval.", "success");
+        setTimeout(() => { window.location.href = isAdmin ? "login.html" : "login.html?registered=1"; }, isAdmin ? 1200 : 1400);
       } catch (err) {
-        console.error(err);
-        let text = err.message || "Registration failed.";
-
-        if (err.code === "auth/email-already-in-use") text = "This e-mail address is already in use.";
-        if (err.code === "auth/invalid-email") text = "Invalid e-mail address.";
-        if (err.code === "auth/weak-password") text = "Weak password. Use at least 6 characters.";
-
-        showMessage(text, "error");
-      } finally {
-        setLoading(false);
-      }
+        console.error(err); let text = err.message || "Registration failed."; if (err.code === "auth/email-already-in-use") text = "This e-mail address is already in use."; if (err.code === "auth/invalid-email") text = "Invalid e-mail address."; if (err.code === "auth/weak-password") text = "Weak password. Use at least 6 characters."; showMessage(text, "error");
+      } finally { setLoading(false); }
     });
   </script>
 </body>
