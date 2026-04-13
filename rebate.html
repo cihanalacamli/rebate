@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cisco 360 Rebate Estimator – Internal | V2.1</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #111a2b;
+    --panel-2: #15233a;
+    --line: #26344e;
+    --text: #e8edf7;
+    --muted: #9fb0cf;
+    --soft: #c7d2e8;
+    --accent: #5da9ff;
+    --accent-2: #83c5ff;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --chip: #0e294f;
+    --shadow: 0 18px 50px rgba(0,0,0,.28);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: linear-gradient(180deg, #0a101b 0%, #0d1525 100%); color: var(--text); font-family: Inter, Segoe UI, Arial, sans-serif; }
+  body { min-height: 100vh; }
+  .wrap { width: min(100%, 1880px); max-width: none; margin: 0 auto; padding: 10px; }
+  .hero {
+    background: linear-gradient(135deg, rgba(93,169,255,.18), rgba(19,33,59,.85));
+    border: 1px solid rgba(131,197,255,.18);
+    border-radius: 24px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 1.4fr auto;
+    gap: 18px;
+    align-items: center;
+  }
+  h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: .2px; }
+  .sub { color: var(--muted); line-height: 1.45; max-width: 980px; }
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+  .badge {
+    border: 1px solid rgba(93,169,255,.45);
+    background: rgba(12,23,44,.75);
+    color: var(--soft);
+    padding: 10px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: .25px;
+    white-space: nowrap;
+  }
+.author-link {
+  color: #4da3ff;
+}
+
+.author-link:visited {
+  color: #4da3ff;
+}
+
+.author-link:hover {
+  color: #7fbfff;
+}
+
+  .badge.internal { border-color: rgba(245,158,11,.35); color: #ffd998; background: rgba(85,53,0,.22); }
+  .grid { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; margin-top: 14px; align-items: start; }
+  .panel {
+    background: linear-gradient(180deg, rgba(17,26,43,.96), rgba(13,22,37,.96));
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .panel-head {
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .panel h2 { font-size: 17px; margin: 0; }
+  .panel-body { padding: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .25px;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(6,13,24,.58);
+    color: var(--text);
+    padding: 11px 12px;
+    border-radius: 12px;
+    outline: none;
+    transition: .15s ease;
+    font-size: 14px;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: rgba(93,169,255,.75);
+    box-shadow: 0 0 0 3px rgba(93,169,255,.16);
+  }
+  .field textarea { min-height: 96px; resize: vertical; }
+  .desc > div:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .order-inline-actions { display:flex; gap:10px; justify-content:flex-end; }
+  .breakdown-note { display:none; }
+  .tiny { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.35; }
+  .table-wrap th:nth-child(1), .table-wrap td:nth-child(1) { width: 102px; }
+  .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 130px; }
+  .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 235px; }
+  .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 185px; }
+  .table-wrap th:nth-child(5), .table-wrap td:nth-child(5) { width: 132px; }
+  .table-wrap th:nth-child(6), .table-wrap td:nth-child(6) { width: 85px; }
+  .table-wrap th:nth-child(7), .table-wrap td:nth-child(7) { width: 100px; }
+  .table-wrap th:nth-child(8), .table-wrap td:nth-child(8) { width: 88px; }
+  .table-wrap th:nth-child(9), .table-wrap td:nth-child(9) { width: 86px; }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  button {
+    border: 0;
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .18s ease;
+    font-size: 13px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #5da9ff, #2c7be5);
+    color: white;
+  }
+  .btn-secondary {
+    background: rgba(18,29,48,.95);
+    color: var(--soft);
+    border: 1px solid rgba(93,169,255,.45);
+  }
+  .btn-danger {
+    background: rgba(113, 24, 24, .28);
+    color: #ffcbcb;
+    border: 1px solid rgba(239,68,68,.25);
+    padding: 10px 12px;
+  }
+  button:hover { transform: translateY(-1px); filter: brightness(1.04); }
+  button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card {
+    background: linear-gradient(180deg, rgba(15,26,44,.95), rgba(10,19,34,.92));
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 16px;
+    padding: 14px;
+    min-height: 86px;
+  }
+  .card .k { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .card .v { font-size: 24px; font-weight: 700; letter-spacing: .2px; }
+  .card .s { margin-top: 6px; font-size: 11px; color: var(--muted); }
+  .card.green .v { color: #89efaf; }
+  .card.blue .v { color: #9fd0ff; }
+  .card.amber .v { color: #ffd27a; }
+  .table-wrap { overflow-x: auto; overflow-y: visible; max-height: none; border-radius: 14px; border: 1px solid rgba(255,255,255,.06); }
+  table { width: 100%; border-collapse: collapse; min-width: 0; table-layout: fixed; }
+  th, td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: middle; }
+  th {
+    position: sticky; top: 0; z-index: 2;
+    background: #14233a;
+    color: #dfe9fb;
+    font-size: 12px; text-align: left; letter-spacing: .25px;
+  }
+  td { background: rgba(8,16,29,.55); }
+  tr:hover td { background: rgba(14,25,44,.78); }
+  .line-input, .line-select {
+    min-width: 0;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,.09);
+    background: rgba(8,15,26,.88);
+    color: var(--text);
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    outline: none;
+  }
+  .line-input:focus, .line-select:focus { border-color: rgba(93,169,255,.75); box-shadow: 0 0 0 3px rgba(93,169,255,.14); }
+  .line-input[disabled], .line-select[disabled] { opacity: .45; cursor: not-allowed; }
+  .desc {
+    min-width: 220px;
+    color: #cfdaee;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .muted { color: var(--muted); }
+  .status {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 700;
+    letter-spacing: .2px; min-width: 96px;
+  }
+  .eligible { background: rgba(34,197,94,.14); color: #9af2b7; border: 1px solid rgba(34,197,94,.22); }
+  .warning { background: rgba(245,158,11,.14); color: #ffd48a; border: 1px solid rgba(245,158,11,.22); }
+  .invalid { background: rgba(239,68,68,.14); color: #ffb5b5; border: 1px solid rgba(239,68,68,.22); }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .mini-table { width: 100%; min-width: 100%; border-collapse: collapse; }
+  .mini-table th, .mini-table td { padding: 8px 8px; font-size: 12px; }
+  .panel-note {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .right-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .empty {
+    border: 1px dashed rgba(255,255,255,.12);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+    background: rgba(8,14,24,.45);
+  }
+  .footer-note {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  @media (max-width: 1320px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+    .summary-grid { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+    .badges { justify-content: flex-start; }
+  }
+  @media (max-width: 760px) {
+    .wrap { padding: 12px; }
+    .stats { grid-template-columns: 1fr; }
+    .btn-row { grid-template-columns: 1fr; }
+  }
+
+  .sku-cell { position: relative; overflow: visible; }
+  .sku-cell.suggesting { padding-bottom: 0; }
+  .suggestion-header {
+    padding: 7px 10px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: #8fbfff;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: rgba(16,31,55,.98);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  tr.suggesting-row td { background: rgba(14,25,44,.88); }
+  .typeahead-menu {
+    margin-top: 8px;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    background: #0f1727;
+    border: 1px solid rgba(131,197,255,.18);
+    border-radius: 14px;
+    box-shadow: 0 18px 36px rgba(0,0,0,.35);
+    max-height: 146px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 30;
+    display: none;
+  }
+  .typeahead-menu.open { display: block; }
+  .sku-cell.open-menu { padding-bottom: 0; }
+  .typeahead-menu.open::before { content: "Suggestions"; display: block; font-size: 10px; letter-spacing: .3px; text-transform: uppercase; color: var(--accent-2); padding: 8px 10px 4px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .suggestion-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    cursor: pointer;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active { background: rgba(93,169,255,.12); }
+  .suggestion-code { font-size: 12px; font-weight: 700; color: var(--accent-2); margin-bottom: 3px; }
+  .suggestion-desc { font-size: 12px; color: var(--soft); line-height: 1.35; }
+
+  .import-panel {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 2px solid rgba(0,212,255,.78);
+    background:
+      radial-gradient(circle at top right, rgba(250,204,21,.18), transparent 34%),
+      radial-gradient(circle at bottom left, rgba(0,212,255,.18), transparent 38%),
+      linear-gradient(135deg, rgba(9,19,36,.98), rgba(22,40,68,.98));
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.03), 0 12px 28px rgba(0,212,255,.18);
+  }
+  .import-panel h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 800;
+    color: #dff7ff;
+    letter-spacing: .2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .import-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .45px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: #09243a;
+    background: linear-gradient(135deg, #facc15, #fde68a);
+    text-transform: uppercase;
+    box-shadow: 0 8px 20px rgba(250,204,21,.22);
+  }
+  .import-sub {
+    font-size: 12px;
+    color: #bfeaff;
+    margin: 0 0 12px;
+    line-height: 1.45;
+  }
+  .import-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .btn-import {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6 70%, #8b5cf6);
+    color: white;
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 10px 24px rgba(59,130,246,.24);
+  }
+  .btn-import:hover { filter: brightness(1.06); }
+  .import-panel select {
+    border-color: rgba(0,212,255,.34);
+    background: rgba(7,15,29,.78);
+  }
+  .import-status {
+    margin-top: 10px;
+    min-height: 18px;
+    font-size: 12px;
+    color: #b8d4f8;
+    line-height: 1.45;
+  }
+  .import-status.ok { color: #9af2b7; }
+  .import-status.warn { color: #ffd48a; }
+  .import-status.err { color: #ffb5b5; }
+
+
+
+  /* Access gate */
+  .app-shell { display: none; }
+  .gate-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(180deg, rgba(10,16,27,.98) 0%, rgba(13,21,37,.98) 100%);
+  }
+  .gate-card {
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(180deg, rgba(17,26,43,.98), rgba(13,22,37,.98));
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    padding: 28px;
+  }
+  .gate-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(93,169,255,.35);
+    background: rgba(12,23,44,.75);
+    color: var(--soft);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: .25px;
+    margin-bottom: 14px;
+  }
+  .gate-title {
+    margin: 0 0 10px;
+    font-size: 28px;
+    letter-spacing: .2px;
+  }
+  .gate-text {
+    color: var(--muted);
+    line-height: 1.55;
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .gate-status {
+    min-height: 20px;
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: var(--soft);
+  }
+  .gate-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .gate-btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .gate-btn.primary {
+    background: linear-gradient(135deg, #5da9ff, #2c7be5);
+    color: #fff;
+  }
+  .gate-btn.secondary {
+    background: rgba(18,29,48,.95);
+    color: var(--soft);
+    border: 1px solid rgba(93,169,255,.45);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="gate-screen" id="gateScreen">
+  <div class="gate-card">
+    <div class="gate-kicker">Access Control Active</div>
+    <h2 class="gate-title">Checking access...</h2>
+    <p class="gate-text">
+      This tool is protected. Only approved users can open the estimator.
+    </p>
+    <div class="gate-status" id="gateStatus">Validating your session.</div>
+    <div class="gate-actions">
+      <a class="gate-btn primary" href="login.html">Go to Login</a>
+      <a class="gate-btn secondary" href="register.html">New Registration</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap app-shell" id="appShell">
+  <section class="hero">
+    <div>
+      <h1>Cisco 360 Rebate Estimator – Internal</h1>
+      <div class="sub">
+        Offline estimator for Cisco 360 rebate simulation. Select portfolio, tier, SKU/GSP, and line total Net-to-Cisco value in USD. 
+      </div>
+• <i>
+  Developed by
+  <a href="https://www.linkedin.com/in/calacamli" target="_blank" class="author-link">
+    Cihan Alaçamlı
+  </a>
+</i>
+    </div>
+    <div class="badges">
+      <div class="badge internal">Internal Use Only</div>
+      <div class="badge">Currency: USD</div>
+      <div class="badge">Mode: Offline V2</div>
+      <div class="badge">Source Period: FY26 2H</div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <aside class="panel">
+      <div class="panel-head">
+        <h2>Scenario Setup</h2>
+        <div class="badge">Fixed Currency</div>
+      </div>
+      <div class="panel-body">
+        <div class="import-panel">
+          <h3>📥 Import from Excel <span class="import-badge">Recommended</span></h3>
+          <div class="import-sub">Upload your quote file and let the tool auto-read paid SKUs from Excel, match them against the selected portfolio and tier, and populate eligible rebate lines automatically.</div>
+          <div class="field">
+            <label for="importPortfolio">Import Portfolio</label>
+            <select id="importPortfolio"></select>
+          </div>
+          <div class="field">
+            <label for="importTier">Import Tier</label>
+            <select id="importTier"></select>
+          </div>
+          <div class="import-actions">
+            <button class="btn-import" id="importXlsxBtn">Import XLSX (B / G / L Columns)</button>
+            <input id="xlsxFileInput" type="file" accept=".xlsx" style="display:none;" />
+          </div>
+          <div class="tiny">
+            Import logic: <span class="mono">B</span> = SKU, <span class="mono">G</span> must be paid (&gt; 0), <span class="mono">L</span> = Extended Net Price.
+          </div>
+          <div id="importStatus" class="import-status"></div>
+        </div>
+
+        <div class="field">
+          <label for="partnerName">Partner Name</label>
+          <input id="partnerName" type="text" placeholder="Optional" />
+        </div>
+        <div class="field">
+          <label for="scenarioName">Scenario / Quote Name</label>
+          <input id="scenarioName" type="text" placeholder="Optional" />
+        </div>
+        <div class="field">
+          <label for="notes">Notes</label>
+          <textarea id="notes" placeholder="Optional notes for the scenario"></textarea>
+        </div>
+        <div class="field">
+          <label>Tier Labels Used in the Tool</label>
+          <div class="tiny">
+            <span class="mono">Cisco Partner</span> = score band 5.0–7.49<br/>
+            <span class="mono">Cisco Preferred Partner</span> = score band 7.5 and above
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" id="addLineBtn">Add Line</button>
+          <button class="btn-secondary" id="copySummaryBtn">Copy Summary</button>
+          <button class="btn-secondary" id="exportCsvBtn">Export CSV</button>
+          <button class="btn-danger" id="resetBtn">Reset All</button>
+        </div>
+
+        <div class="footer-note">
+          Net-to-Cisco Value is expected as <strong>line total</strong>, not unit price.
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <section class="stats">
+        <div class="card blue">
+          <div class="k">Total Net-to-Cisco</div>
+          <div class="v" id="totalLineValue">$0</div>
+          <div class="s">All entered line totals</div>
+        </div>
+        <div class="card green">
+          <div class="k">Eligible Value</div>
+          <div class="v" id="eligibleValue">$0</div>
+          <div class="s">Only valid eligible lines</div>
+        </div>
+        <div class="card green">
+          <div class="k">Estimated Rebate</div>
+          <div class="v" id="totalRebate">$0</div>
+          <div class="s">Calculated from selected tier and portfolio</div>
+        </div>
+        <div class="card amber">
+          <div class="k">Eligible Lines</div>
+          <div class="v" id="eligibleLines">0</div>
+          <div class="s">Count of eligible lines</div>
+        </div>
+        <div class="card amber">
+          <div class="k">Invalid / Non-Eligible</div>
+          <div class="v" id="invalidLines">0</div>
+          <div class="s">Invalid, incomplete, or non-eligible</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Order Lines</h2>
+          <div class="right-actions">
+            <button class="btn-secondary" id="duplicateLastBtn">Duplicate Last Line</button>
+            <button class="btn-primary" id="addLineBtnTop">Add Line</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:155px;">Portfolio</th>
+                  <th style="width:170px;">Tier</th>
+                  <th style="width:320px;">SKU / PID / GSP</th>
+                  <th>Description</th>
+                  <th style="width:190px;">Net-to-Cisco Value ($)</th>
+                  <th style="width:110px;">Rebate %</th>
+                  <th style="width:140px;">Rebate ($)</th>
+                  <th style="width:120px;">Status</th>
+                  <th style="width:80px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="linesBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty" style="display:none; margin-top: 14px;">
+            No lines added yet. Start with <strong>Add Line</strong>.
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Portfolio Breakdown</h2>
+          </div>
+          <div class="panel-body">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Portfolio</th>
+                  <th>Eligible Value</th>
+                  <th>Rebate</th>
+                  <th>Lines</th>
+                </tr>
+              </thead>
+              <tbody id="portfolioBreakdown"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Tier / Services Breakdown</h2>
+          </div>
+          <div class="panel-body">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Bucket</th>
+                  <th>Eligible Value</th>
+                  <th>Rebate</th>
+                  <th>Lines</th>
+                </tr>
+              </thead>
+              <tbody id="tierBreakdown"></tbody>
+            </table>
+            <div class="footer-note">
+              Services is fixed to <strong>Rest of World</strong> in this version. Other regions remain passive in code comments for later activation.
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </section>
+</div>
+
+</body>
+</html>
