@@ -106,6 +106,7 @@
       color:#9fc0ff;
       text-decoration:none;
       font-size:14px;
+      cursor:pointer;
     }
     .link:hover{text-decoration:underline}
     .msg{
@@ -116,6 +117,7 @@
       font-size:14px;
       line-height:1.45;
       border:1px solid transparent;
+      white-space:pre-line;
     }
     .msg.show{display:block}
     .msg.error{
@@ -173,7 +175,7 @@
 
       <div class="row">
         <a class="link" href="register.html">New registration</a>
-        <a class="link" href="admin.html">Admin panel</a>
+        <span class="link" id="forgotPasswordLink">Forgot password?</span>
       </div>
     </div>
 
@@ -186,7 +188,10 @@
       getAuth,
       signInWithEmailAndPassword,
       onAuthStateChanged,
-      signOut
+      signOut,
+      sendPasswordResetEmail,
+      setPersistence,
+      browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
@@ -209,11 +214,16 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    await setPersistence(auth, browserLocalPersistence);
+
     const form = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
     const loginBtn = document.getElementById("loginBtn");
+    const forgotPasswordLink = document.getElementById("forgotPasswordLink");
     const messageEl = document.getElementById("message");
+
+    let authReady = false;
 
     function showMessage(text, type = "error") {
       messageEl.className = `msg show ${type}`;
@@ -271,7 +281,9 @@
     }
 
     onAuthStateChanged(auth, async (user) => {
+      authReady = true;
       if (!user) return;
+
       try {
         await routeUser(user);
       } catch (err) {
@@ -292,8 +304,12 @@
       setLoading(true);
 
       try {
-        const email = emailInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
         const password = passwordInput.value;
+
+        if (!authReady) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
 
         const credential = await signInWithEmailAndPassword(auth, email, password);
         await routeUser(credential.user);
@@ -307,6 +323,27 @@
         showMessage(text, "error");
       } finally {
         setLoading(false);
+      }
+    });
+
+    forgotPasswordLink.addEventListener("click", async () => {
+      clearMessage();
+      const email = emailInput.value.trim().toLowerCase();
+
+      if (!email) {
+        showMessage("Please enter your e-mail address first, then click 'Forgot password?'.", "warn");
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showMessage("Password reset e-mail has been sent.", "success");
+      } catch (err) {
+        console.error(err);
+        let text = "Could not send password reset e-mail.";
+        if (err.code === "auth/invalid-email") text = "Invalid e-mail address.";
+        if (err.code === "auth/user-not-found") text = "No account found with this e-mail.";
+        showMessage(text, "error");
       }
     });
   </script>
