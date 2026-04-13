@@ -16,6 +16,7 @@
       --accent:#4f8cff;
       --accent-2:#2f6fe8;
       --danger:#ff6b6b;
+      --danger-2:#ff4d4f;
       --success:#2fbf71;
       --warning:#ffb020;
     }
@@ -234,6 +235,11 @@
       color:#ffd8d8;
       border:1px solid rgba(255,107,107,.25);
     }
+    .delete{
+      background:rgba(255,77,79,.14);
+      color:#ffd7d8;
+      border:1px solid rgba(255,77,79,.28);
+    }
     .empty{
       border:1px dashed var(--line);
       border-radius:14px;
@@ -295,7 +301,7 @@
       <div class="section-head">
         <div>
           <h2 class="section-title">Pending approvals</h2>
-          <p class="section-sub">Approve or reject new access requests.</p>
+          <p class="section-sub">Approve, reject, or delete new access requests.</p>
         </div>
       </div>
       <div id="pendingList" class="list"></div>
@@ -305,7 +311,7 @@
       <div class="section-head">
         <div>
           <h2 class="section-title">Processed users</h2>
-          <p class="section-sub">Approved and rejected registrations.</p>
+          <p class="section-sub">Approved and rejected registrations. You can also delete them.</p>
         </div>
       </div>
       <div id="processedList" class="list"></div>
@@ -326,6 +332,7 @@
       doc,
       getDoc,
       updateDoc,
+      deleteDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -439,8 +446,9 @@
             <div class="badge pending">Pending</div>
           </div>
           <div class="actions">
-            <button class="small-btn approve" data-action="approve" data-id="${user.id}">Approve</button>
-            <button class="small-btn reject" data-action="reject" data-id="${user.id}">Reject</button>
+            <button class="small-btn approve" data-action="approve" data-id="${user.id}" data-email="${escapeHtml(user.email)}">Approve</button>
+            <button class="small-btn reject" data-action="reject" data-id="${user.id}" data-email="${escapeHtml(user.email)}">Reject</button>
+            <button class="small-btn delete" data-action="delete" data-id="${user.id}" data-email="${escapeHtml(user.email)}">Delete</button>
           </div>
         </div>
       `).join("");
@@ -466,6 +474,9 @@
             </div>
             <div class="badge ${escapeHtml(user.status)}">${escapeHtml(user.status)}</div>
           </div>
+          <div class="actions">
+            <button class="small-btn delete" data-action="delete" data-id="${user.id}" data-email="${escapeHtml(user.email)}">Delete</button>
+          </div>
         </div>
       `).join("");
     }
@@ -485,10 +496,11 @@
           return bTime - aTime;
         });
 
-        const pendingUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "pending");
-        const approvedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "approved");
-        const rejectedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "rejected");
-        const processedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status !== "pending");
+        const nonAdminUsers = users.filter(u => (u.role || "user") !== "admin");
+        const pendingUsers = nonAdminUsers.filter(u => u.status === "pending");
+        const approvedUsers = nonAdminUsers.filter(u => u.status === "approved");
+        const rejectedUsers = nonAdminUsers.filter(u => u.status === "rejected");
+        const processedUsers = nonAdminUsers.filter(u => u.status !== "pending");
 
         pendingCountEl.textContent = pendingUsers.length;
         approvedCountEl.textContent = approvedUsers.length;
@@ -504,10 +516,8 @@
       }
     }
 
-    // Placeholder for later e-mail integration.
     async function sendApprovalEmailPlaceholder(userData) {
       console.log("Approval email placeholder:", userData.email);
-      // Later we can replace this with EmailJS or another service.
     }
 
     async function updateStatus(userId, newStatus) {
@@ -541,23 +551,66 @@
       }
     }
 
-    pendingList.addEventListener("click", async (e) => {
+    async function deleteUserDoc(userId, userEmail) {
+      clearMessage();
+
+      const confirmed = window.confirm(
+        `Delete this user record?\n\n${userEmail}\n\nThis removes the Firestore access record.`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          throw new Error("User record not found.");
+        }
+
+        const data = userSnap.data();
+
+        if ((data.role || "user") === "admin" || (data.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          throw new Error("Admin record cannot be deleted from this panel.");
+        }
+
+        await deleteDoc(userRef);
+
+        showMessage(`User record deleted successfully: ${userEmail}`, "success");
+        await loadUsers();
+      } catch (err) {
+        console.error(err);
+        showMessage(`Failed to delete user record: ${err.message}`, "error");
+      }
+    }
+
+    function handleActionClick(e) {
       const btn = e.target.closest("button[data-action]");
       if (!btn) return;
 
       const action = btn.dataset.action;
       const userId = btn.dataset.id;
+      const userEmail = btn.dataset.email || "";
 
       if (!userId) return;
 
       if (action === "approve") {
-        await updateStatus(userId, "approved");
+        updateStatus(userId, "approved");
+        return;
       }
 
       if (action === "reject") {
-        await updateStatus(userId, "rejected");
+        updateStatus(userId, "rejected");
+        return;
       }
-    });
+
+      if (action === "delete") {
+        deleteUserDoc(userId, userEmail);
+      }
+    }
+
+    pendingList.addEventListener("click", handleActionClick);
+    processedList.addEventListener("click", handleActionClick);
 
     refreshBtn.addEventListener("click", loadUsers);
 
