@@ -440,34 +440,25 @@
       }
     }
 
-    async function fastRedirectToLogin() {
+    function fastRedirectToLogin() {
       window.location.replace("login.html");
     }
 
     async function ensureAdmin(user) {
       if (!user) {
-        await fastRedirectToLogin();
+        fastRedirectToLogin();
         return false;
       }
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+      const email = (user.email || "").toLowerCase();
 
-      if (!userSnap.exists()) {
+      if (email !== ADMIN_EMAIL.toLowerCase()) {
         await signOut(auth);
-        await fastRedirectToLogin();
+        fastRedirectToLogin();
         return false;
       }
 
-      const data = userSnap.data();
-      const isAdmin = user.email === ADMIN_EMAIL || data.role === "admin";
-
-      if (!isAdmin) {
-        await fastRedirectToLogin();
-        return false;
-      }
-
-      currentAdminEmail = user.email;
+      currentAdminEmail = email;
       return true;
     }
 
@@ -645,10 +636,10 @@
         const ok = await ensureAdmin(user);
         if (!ok) return;
         revealPage();
-        await loadUsers();
+        loadUsers();
       } catch (err) {
         console.error(err);
-        await fastRedirectToLogin();
+        fastRedirectToLogin();
       }
     });
   </script>
