@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rebate Access | Login</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2e;
+      --panel-2:#16213a;
+      --text:#e8eefc;
+      --muted:#9db0d3;
+      --line:#24314f;
+      --accent:#4f8cff;
+      --accent-2:#2f6fe8;
+      --danger:#ff6b6b;
+      --success:#2fbf71;
+      --warning:#ffb020;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+    .wrap{
+      width:100%;
+      max-width:430px;
+    }
+    .card{
+      background:rgba(17,26,46,.96);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 16px 40px rgba(0,0,0,.35);
+    }
+    .brand{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:28px;
+      line-height:1.1;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:14px;
+      margin:0 0 22px;
+      line-height:1.5;
+    }
+    label{
+      display:block;
+      font-size:13px;
+      margin:0 0 8px;
+      color:#c9d6f2;
+    }
+    input{
+      width:100%;
+      padding:13px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      color:var(--text);
+      outline:none;
+      margin:0 0 14px;
+    }
+    input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(79,140,255,.15);
+    }
+    .btn{
+      width:100%;
+      padding:13px 16px;
+      border:none;
+      border-radius:12px;
+      background:var(--accent);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .btn:hover{background:var(--accent-2)}
+    .btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:14px;
+      flex-wrap:wrap;
+    }
+    .link{
+      color:#9fc0ff;
+      text-decoration:none;
+      font-size:14px;
+    }
+    .link:hover{text-decoration:underline}
+    .msg{
+      display:none;
+      margin:0 0 16px;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:14px;
+      line-height:1.45;
+      border:1px solid transparent;
+    }
+    .msg.show{display:block}
+    .msg.error{
+      background:rgba(255,107,107,.08);
+      border-color:rgba(255,107,107,.25);
+      color:#ffd4d4;
+    }
+    .msg.success{
+      background:rgba(47,191,113,.08);
+      border-color:rgba(47,191,113,.25);
+      color:#cff5de;
+    }
+    .msg.warn{
+      background:rgba(255,176,32,.08);
+      border-color:rgba(255,176,32,.25);
+      color:#ffe8b3;
+    }
+    .footer-note{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      margin-top:16px;
+    }
+    .loading{
+      display:inline-block;
+      width:16px;height:16px;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color:white;
+      border-radius:50%;
+      animation:spin .7s linear infinite;
+      vertical-align:-3px;
+      margin-right:8px;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">Cisco Rebate Access</div>
+      <h1>Login</h1>
+      <p class="sub">Approved users can access the rebate tool. New users must register first and wait for approval.</p>
+
+      <div id="message" class="msg"></div>
+
+      <form id="loginForm">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="email" required />
+
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+
+        <button id="loginBtn" class="btn" type="submit">Login</button>
+      </form>
+
+      <div class="row">
+        <a class="link" href="register.html">New registration</a>
+        <a class="link" href="admin.html">Admin panel</a>
+      </div>
+    </div>
+
+    <div class="footer-note">Rebate access is controlled by admin approval.</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const ADMIN_EMAIL = "cihanalacamli@gmail.com";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLaIlSEnNN4Oxa7vHaAJpF3nl4DkH3lxc",
+      authDomain: "rebate-access.firebaseapp.com",
+      projectId: "rebate-access",
+      storageBucket: "rebate-access.firebasestorage.app",
+      messagingSenderId: "1049221583087",
+      appId: "1:1049221583087:web:1f1fdaa2fe21801ec74b1a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const messageEl = document.getElementById("message");
+
+    function showMessage(text, type = "error") {
+      messageEl.className = `msg show ${type}`;
+      messageEl.textContent = text;
+    }
+
+    function clearMessage() {
+      messageEl.className = "msg";
+      messageEl.textContent = "";
+    }
+
+    function setLoading(isLoading, label = "Login") {
+      loginBtn.disabled = isLoading;
+      loginBtn.innerHTML = isLoading ? `<span class="loading"></span>Please wait` : label;
+    }
+
+    async function routeUser(user) {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        showMessage("User record not found. Please register again or contact admin.", "error");
+        return;
+      }
+
+      const data = userSnap.data();
+      const role = data.role || "user";
+      const status = data.status || "pending";
+
+      if (role === "admin" || user.email === ADMIN_EMAIL) {
+        window.location.href = "admin.html";
+        return;
+      }
+
+      if (status === "approved") {
+        window.location.href = "rebate.html";
+        return;
+      }
+
+      if (status === "pending") {
+        await signOut(auth);
+        showMessage("Your registration is waiting for admin approval.", "warn");
+        return;
+      }
+
+      if (status === "rejected") {
+        await signOut(auth);
+        showMessage("Your registration was rejected. Please contact the administrator.", "error");
+        return;
+      }
+
+      await signOut(auth);
+      showMessage("Access status is invalid. Please contact admin.", "error");
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      try {
+        await routeUser(user);
+      } catch (err) {
+        console.error(err);
+        showMessage("Session check failed. Please log in again.", "error");
+      }
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const registered = urlParams.get("registered");
+    if (registered === "1") {
+      showMessage("Registration completed. Please wait for admin approval before login.", "success");
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMessage();
+      setLoading(true);
+
+      try {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        await routeUser(credential.user);
+      } catch (err) {
+        console.error(err);
+        let text = "Login failed.";
+        if (err.code === "auth/invalid-credential") text = "Invalid e-mail or password.";
+        if (err.code === "auth/user-not-found") text = "User not found.";
+        if (err.code === "auth/wrong-password") text = "Wrong password.";
+        if (err.code === "auth/too-many-requests") text = "Too many attempts. Try again later.";
+        showMessage(text, "error");
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
