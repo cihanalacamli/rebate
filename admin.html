@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rebate Access | Admin</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2e;
+      --panel-2:#16213a;
+      --panel-3:#0f1830;
+      --text:#e8eefc;
+      --muted:#9db0d3;
+      --line:#24314f;
+      --accent:#4f8cff;
+      --accent-2:#2f6fe8;
+      --danger:#ff6b6b;
+      --success:#2fbf71;
+      --warning:#ffb020;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,#08101d 0%,#0d1527 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(11,18,32,.92);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      max-width:1180px;
+      margin:0 auto;
+      padding:16px 22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    h1{
+      margin:0;
+      font-size:26px;
+    }
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .ghost,.primary,.danger{
+      border:none;
+      border-radius:12px;
+      padding:11px 14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .primary{background:var(--accent);color:#fff}
+    .primary:hover{background:var(--accent-2)}
+    .ghost{
+      background:transparent;
+      color:#d7e3ff;
+      border:1px solid var(--line);
+    }
+    .danger{
+      background:rgba(255,107,107,.12);
+      color:#ffd9d9;
+      border:1px solid rgba(255,107,107,.25);
+    }
+    .page{
+      max-width:1180px;
+      margin:0 auto;
+      padding:24px 22px 34px;
+    }
+    .msg{
+      display:none;
+      margin:0 0 18px;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:14px;
+      line-height:1.45;
+      border:1px solid transparent;
+    }
+    .msg.show{display:block}
+    .msg.error{
+      background:rgba(255,107,107,.08);
+      border-color:rgba(255,107,107,.25);
+      color:#ffd4d4;
+    }
+    .msg.success{
+      background:rgba(47,191,113,.08);
+      border-color:rgba(47,191,113,.25);
+      color:#cff5de;
+    }
+    .msg.warn{
+      background:rgba(255,176,32,.08);
+      border-color:rgba(255,176,32,.25);
+      color:#ffe8b3;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-bottom:18px;
+    }
+    .stat{
+      background:rgba(17,26,46,.96);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+    }
+    .stat-label{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:8px;
+    }
+    .stat-value{
+      font-size:28px;
+      font-weight:800;
+    }
+    .section{
+      background:rgba(17,26,46,.96);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:18px;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .section-title{
+      font-size:20px;
+      margin:0;
+    }
+    .section-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin:4px 0 0;
+    }
+    .list{
+      display:grid;
+      gap:12px;
+    }
+    .user-card{
+      background:var(--panel-3);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+    }
+    .user-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .name{
+      font-size:18px;
+      font-weight:700;
+      margin:0 0 4px;
+    }
+    .meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .badge.pending{
+      background:rgba(255,176,32,.10);
+      color:#ffd27a;
+      border:1px solid rgba(255,176,32,.25);
+    }
+    .badge.approved{
+      background:rgba(47,191,113,.10);
+      color:#bff0d1;
+      border:1px solid rgba(47,191,113,.25);
+    }
+    .badge.rejected{
+      background:rgba(255,107,107,.10);
+      color:#ffd0d0;
+      border:1px solid rgba(255,107,107,.25);
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .small-btn{
+      border:none;
+      border-radius:10px;
+      padding:10px 12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .approve{
+      background:rgba(47,191,113,.14);
+      color:#d4f7e2;
+      border:1px solid rgba(47,191,113,.25);
+    }
+    .reject{
+      background:rgba(255,107,107,.12);
+      color:#ffd8d8;
+      border:1px solid rgba(255,107,107,.25);
+    }
+    .empty{
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:24px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(255,255,255,.01);
+    }
+    .loading{
+      display:inline-block;
+      width:16px;height:16px;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color:white;
+      border-radius:50%;
+      animation:spin .7s linear infinite;
+      vertical-align:-3px;
+      margin-right:8px;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-width: 860px){
+      .stats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand">Cisco Rebate Access</div>
+        <h1>Admin Panel</h1>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn" class="ghost">Refresh</button>
+        <button id="openToolBtn" class="ghost">Open rebate tool</button>
+        <button id="logoutBtn" class="danger">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div id="message" class="msg"></div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Pending</div>
+        <div id="pendingCount" class="stat-value">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Approved</div>
+        <div id="approvedCount" class="stat-value">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Rejected</div>
+        <div id="rejectedCount" class="stat-value">0</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Pending approvals</h2>
+          <p class="section-sub">Approve or reject new access requests.</p>
+        </div>
+      </div>
+      <div id="pendingList" class="list"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Processed users</h2>
+          <p class="section-sub">Approved and rejected registrations.</p>
+        </div>
+      </div>
+      <div id="processedList" class="list"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      doc,
+      getDoc,
+      updateDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const ADMIN_EMAIL = "cihanalacamli@gmail.com";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLaIlSEnNN4Oxa7vHaAJpF3nl4DkH3lxc",
+      authDomain: "rebate-access.firebaseapp.com",
+      projectId: "rebate-access",
+      storageBucket: "rebate-access.firebasestorage.app",
+      messagingSenderId: "1049221583087",
+      appId: "1:1049221583087:web:1f1fdaa2fe21801ec74b1a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const messageEl = document.getElementById("message");
+    const pendingList = document.getElementById("pendingList");
+    const processedList = document.getElementById("processedList");
+    const pendingCountEl = document.getElementById("pendingCount");
+    const approvedCountEl = document.getElementById("approvedCount");
+    const rejectedCountEl = document.getElementById("rejectedCount");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const openToolBtn = document.getElementById("openToolBtn");
+
+    let currentAdminEmail = null;
+
+    function showMessage(text, type = "error") {
+      messageEl.className = `msg show ${type}`;
+      messageEl.textContent = text;
+    }
+
+    function clearMessage() {
+      messageEl.className = "msg";
+      messageEl.textContent = "";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[m]));
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      try {
+        if (typeof value.toDate === "function") {
+          return value.toDate().toLocaleString();
+        }
+        return new Date(value).toLocaleString();
+      } catch {
+        return "-";
+      }
+    }
+
+    async function ensureAdmin(user) {
+      if (!user) {
+        window.location.href = "login.html";
+        return false;
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return false;
+      }
+
+      const data = userSnap.data();
+      const isAdmin = user.email === ADMIN_EMAIL || data.role === "admin";
+
+      if (!isAdmin) {
+        showMessage("You are not authorized to view the admin panel.", "error");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1200);
+        return false;
+      }
+
+      currentAdminEmail = user.email;
+      return true;
+    }
+
+    function renderPending(users) {
+      if (!users.length) {
+        pendingList.innerHTML = `<div class="empty">No pending registrations right now.</div>`;
+        return;
+      }
+
+      pendingList.innerHTML = users.map(user => `
+        <div class="user-card">
+          <div class="user-top">
+            <div>
+              <div class="name">${escapeHtml(user.firstName)} ${escapeHtml(user.lastName)}</div>
+              <div class="meta">
+                Company: ${escapeHtml(user.company)}<br>
+                E-mail: ${escapeHtml(user.email)}<br>
+                Username: ${escapeHtml(user.username)}<br>
+                Created: ${escapeHtml(formatDate(user.createdAt))}
+              </div>
+            </div>
+            <div class="badge pending">Pending</div>
+          </div>
+          <div class="actions">
+            <button class="small-btn approve" data-action="approve" data-id="${user.id}">Approve</button>
+            <button class="small-btn reject" data-action="reject" data-id="${user.id}">Reject</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderProcessed(users) {
+      if (!users.length) {
+        processedList.innerHTML = `<div class="empty">No processed users yet.</div>`;
+        return;
+      }
+
+      processedList.innerHTML = users.map(user => `
+        <div class="user-card">
+          <div class="user-top">
+            <div>
+              <div class="name">${escapeHtml(user.firstName)} ${escapeHtml(user.lastName)}</div>
+              <div class="meta">
+                Company: ${escapeHtml(user.company)}<br>
+                E-mail: ${escapeHtml(user.email)}<br>
+                Username: ${escapeHtml(user.username)}<br>
+                Status updated: ${escapeHtml(formatDate(user.approvedAt))}
+              </div>
+            </div>
+            <div class="badge ${escapeHtml(user.status)}">${escapeHtml(user.status)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function loadUsers() {
+      clearMessage();
+      pendingList.innerHTML = `<div class="empty"><span class="loading"></span>Loading users...</div>`;
+      processedList.innerHTML = `<div class="empty"><span class="loading"></span>Loading users...</div>`;
+
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        users.sort((a, b) => {
+          const aTime = a.createdAt?.seconds || 0;
+          const bTime = b.createdAt?.seconds || 0;
+          return bTime - aTime;
+        });
+
+        const pendingUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "pending");
+        const approvedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "approved");
+        const rejectedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status === "rejected");
+        const processedUsers = users.filter(u => (u.role || "user") !== "admin" && u.status !== "pending");
+
+        pendingCountEl.textContent = pendingUsers.length;
+        approvedCountEl.textContent = approvedUsers.length;
+        rejectedCountEl.textContent = rejectedUsers.length;
+
+        renderPending(pendingUsers);
+        renderProcessed(processedUsers);
+      } catch (err) {
+        console.error(err);
+        showMessage("Failed to load users.", "error");
+        pendingList.innerHTML = `<div class="empty">Could not load pending users.</div>`;
+        processedList.innerHTML = `<div class="empty">Could not load processed users.</div>`;
+      }
+    }
+
+    // Placeholder for later e-mail integration.
+    async function sendApprovalEmailPlaceholder(userData) {
+      console.log("Approval email placeholder:", userData.email);
+      // Later we can replace this with EmailJS or another service.
+    }
+
+    async function updateStatus(userId, newStatus) {
+      clearMessage();
+
+      try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          throw new Error("User not found.");
+        }
+
+        const userData = userSnap.data();
+
+        await updateDoc(userRef, {
+          status: newStatus,
+          approvedAt: serverTimestamp(),
+          approvedBy: currentAdminEmail
+        });
+
+        if (newStatus === "approved") {
+          await sendApprovalEmailPlaceholder(userData);
+        }
+
+        showMessage(`User ${newStatus} successfully.`, "success");
+        await loadUsers();
+      } catch (err) {
+        console.error(err);
+        showMessage(`Failed to update user status: ${err.message}`, "error");
+      }
+    }
+
+    pendingList.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const userId = btn.dataset.id;
+
+      if (!userId) return;
+
+      if (action === "approve") {
+        await updateStatus(userId, "approved");
+      }
+
+      if (action === "reject") {
+        await updateStatus(userId, "rejected");
+      }
+    });
+
+    refreshBtn.addEventListener("click", loadUsers);
+
+    openToolBtn.addEventListener("click", () => {
+      window.location.href = "rebate.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        const ok = await ensureAdmin(user);
+        if (!ok) return;
+        await loadUsers();
+      } catch (err) {
+        console.error(err);
+        showMessage("Admin session validation failed.", "error");
+      }
+    });
+  </script>
+</body>
+</html>
