@@ -479,7 +479,7 @@
 <div class="wrap app-shell" id="appShell">
   <section class="hero">
     <div>
-      <div class="last-updated">Last Updated: September 9, 2026 · FY27 1H (Jul 26, 2026 – Jan 23, 2027)</div>
+      <div class="last-updated">Last Updated: August 28, 2026 · FY27 1H (Jul 26, 2026 – Jan 23, 2027)</div>
       <h1>Cisco 360 Rebate Estimator – Internal</h1>
       <div class="sub">
         Offline estimator for Cisco 360 rebate simulation. Select portfolio, tier, SKU/GSP, and line total Net-to-Cisco value in USD. 
@@ -1422,6 +1422,7 @@ function initImportControls() {
     <label for="allTier${i}">${esc(p)}</label>
     <select id="allTier${i}" data-import-tier="${esc(p)}">
       <option value="">Select level</option>
+      <option value="none">0–4.99 (No rebate)</option>
       <option value="partner">5.0–7.49</option>
       <option value="preferred">7.5+</option>
     </select></div>`).join("");
@@ -1645,7 +1646,7 @@ async function handleXlsxImport(file) {
   const tiers = all
     ? Object.fromEntries(Array.from(els.importAllTierFields.querySelectorAll('select')).map(el => [el.getAttribute('data-import-tier'), el.value]))
     : { [selectedPortfolio]: els.importTier.value };
-  if (portfolios.some(p => !PORTFOLIOS.includes(p) || !['partner', 'preferred'].includes(tiers[p]))) {
+  if (portfolios.some(p => !PORTFOLIOS.includes(p) || !(all ? ['none', 'partner', 'preferred'] : ['partner', 'preferred']).includes(tiers[p]))) {
     setImportStatus(all ? 'Select a level for every portfolio.' : 'Select import portfolio and tier first.', 'err');
     return;
   }
@@ -1664,6 +1665,7 @@ async function handleXlsxImport(file) {
     let workbookTotalNetToCisco = 0;
     const imported = [];
     let ambiguous = 0;
+    let noRebate = 0;
 
     for (const row of dataRows) {
       const rawSku = row[skuCol] || row.B || '';
@@ -1684,7 +1686,9 @@ async function handleXlsxImport(file) {
       if (!(lineValueNum > 0)) continue;
 
       paid += 1;
-      const candidates = portfolios.filter(p => resolveExactCode(p, sku));
+      const matches = portfolios.filter(p => resolveExactCode(p, sku));
+      const candidates = matches.filter(p => tiers[p] !== 'none');
+      if (matches.length && !candidates.length) { noRebate += 1; continue; }
       if (!candidates.length) { nonEligible += 1; continue; }
       if (candidates.length > 1) {
         imported.push(evaluateLine({
@@ -1723,6 +1727,7 @@ async function handleXlsxImport(file) {
       `${matched} eligible line(s) imported`,
       `${paid} paid row(s) checked`,
       `${nonEligible} unmatched/non-eligible`,
+      `${noRebate} line(s) excluded: portfolio score below 5.0`,
       `source value column: ${totalCol}`
     ];
     if (Number.isFinite(workbookGrandTotal) && workbookGrandTotal > 0) bits.push(`grand total found`);
